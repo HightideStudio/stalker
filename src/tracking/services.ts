@@ -1,11 +1,12 @@
 import { v1 as uuidv1 } from "uuid";
+import logger from "../utils/logger";
 import { Tracker, TimeSlot, Label } from "./models";
 import { ITrackerRepository } from "./repo";
 
 export interface ITrackerService {
-    createTracker(body: {title: string, description: string}): Promise<string>;
+    createTracker(body: {title: string, description: string}): Promise<Tracker>;
     findTrackerById(id: string): Tracker;
-    findAllTrackers(): Array<Tracker>;
+    findAllTrackers(): Tracker[];
 }
 
 export class TrackerService implements ITrackerService {
@@ -15,17 +16,17 @@ export class TrackerService implements ITrackerService {
         this.repo = repo;
     }
 
-    createTracker(body: {title: string, description: string}): Promise<string> {
-        let promise = new Promise<string>((resolve, reject) => {
-            let tracker = new Tracker(body.title, body.description)
+    createTracker(body: {title: string, description: string}): Promise<Tracker> {
+        const promise = new Promise<Tracker>((resolve, reject) => {
+            const tracker = new Tracker(body.title, body.description)
             tracker.id = uuidv1();
             tracker.createdAt = new Date();
             tracker.updatedAt = new Date();
-            let error = this.repo.create(tracker);
+            const error = this.repo.create(tracker);
             if (error) {
                 reject(error);
             } else {
-                resolve(tracker.id);
+                resolve(tracker);
             }
         });
         return promise;
@@ -35,7 +36,7 @@ export class TrackerService implements ITrackerService {
         return this.repo.findById(id);
     }
 
-    findAllTrackers(): Array<Tracker> {
+    findAllTrackers(): Tracker[] {
         return this.repo.findAll();
     }
 }

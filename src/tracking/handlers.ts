@@ -1,5 +1,7 @@
+import logger from "../utils/logger";
 import { Request, Response, Router } from "express";
 import { TrackerService } from "./services";
+import { Tracker } from "./models";
 
 interface ITrackerHTTPHandler {
     get(req: Request, res: Response): void
@@ -7,30 +9,30 @@ interface ITrackerHTTPHandler {
     create(req: Request, res: Response): void
 }
 
-class TrackerHTTPHandler implements ITrackerHTTPHandler {
+export class TrackerHTTPHandler implements ITrackerHTTPHandler {
     trackerService: TrackerService;
 
-    constructor(tackerService: TrackerService) {
-        this.trackerService = this.trackerService;
+    constructor(trackerService: TrackerService) {
+        this.trackerService = trackerService;
     }
 
     get(req: Request, res: Response): void {
-        let trackers = this.trackerService.findAllTrackers();
+        const trackers = this.trackerService.findAllTrackers();
         res.status(200).send({trackers});
     }
 
     getById(req: Request, res: Response): void {
-        let tracker = this.trackerService.findTrackerById(req.params.id);
+        const tracker = this.trackerService.findTrackerById(req.params.id);
         res.status(200).send(tracker);
     }
 
     create(req: Request, res: Response): void {
         this.trackerService.createTracker(req.body)
-            .then((id: string) => {
-                res.status(201).send({id});
+            .then((tracker: Tracker) => {
+                res.status(201).send(tracker);
             })
             .catch((err: Error) => {
-                res.status(400).send(err);
+                res.status(400).send({message: err.message});
             });
     }
 }
